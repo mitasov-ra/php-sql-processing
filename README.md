@@ -25,6 +25,46 @@
 Реализации для `Logger` нет, по умолчанию используется пустышка `VoidLogger`, но
 имеется `LogUtils`, для написания своей реализации.
 
+### Установка
+
+Просто скопировать исходный код себе в проект и настроить автолоадинг.
+
+Пока не внедрены Composer или другие способы установки.
+
+### Совместимость и зависимости
+
+Совместимо с PHP 5.3 и выше. Внешних зависимостей нет.
+
+### Пример
+
+```php
+$process = new CommonSqlProcess();
+$process->setDefaultLogger($custom_log);
+$process->setDefaultSqlFilesDir('/path/to/my/sql/files');
+$process->setDefaultSqlRunner(new PDOSqlRunner());
+
+$process->addSteps(array(
+    Steps::fromPhpCallable(function () use ($custom_log) {
+        $custom_log->info('Запущен {php} шаг', array('php' => 'PHP 5.3'));
+    }),
+    Steps::sqlFileStep(
+        array(
+            'setup-environment.sql',
+            'perform-modification.sql',
+            'clear-environment.sql',
+        ),
+        array(
+            'param1' => $param1,
+            'param2' => $param2,
+        ),
+    ),
+    Steps::fromPhpCallable(function () use ($custom_log) {
+        $custom_log->info('Процесс закончился');
+    }),
+));
+
+```
+
 Главная цель создания всей этой структуры - запуск sql файлов в нужном порядке с
 удобным логированием каждого этапа.
 
